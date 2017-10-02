@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Kvm | 亨利的博客]]></title>
+  <link href="http://hwguo.github.io/blog/categories/kvm/atom.xml" rel="self"/>
+  <link href="http://hwguo.github.io/"/>
+  <updated>2017-10-03T00:21:54+08:00</updated>
+  <id>http://hwguo.github.io/</id>
+  <author>
+    <name><![CDATA[Henry]]></name>
+    <email><![CDATA[hwguo1988@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[虚拟机CPU绑定设置]]></title>
+    <link href="http://hwguo.github.io/blog/2015/10/05/vcpu-binding/"/>
+    <updated>2015-10-05T17:32:46+08:00</updated>
+    <id>http://hwguo.github.io/blog/2015/10/05/vcpu-binding</id>
+    <content type="html"><![CDATA[<h2>1. VCPU信息查看</h2>
+
+<h3>1.1 VCPU与CPU对应关系</h3>
+
+<pre><code>virsh vcpuinfo [vm_name]
+</code></pre>
+
+<p>宿主机有一个物理CPU，8个物理核。此处的物理核，是指全部的逻辑CPU核，包括开启了超线程，即/proc/cpuinfo中列表的全部CPU核。如无特殊说明，下同。</p>
+
+<p><img src="http://7vzrth.com1.z0.glb.clouddn.com/virsh_vcpuinfo_2.png" alt="center" /></p>
+
+<p>如图可以看到，VCPU0被调度到物理核4上，VCPU1被调度到物理核5上。
+CPU Affinity yyyyyyyy 代表物理核0~7均可以设置绑定，如果不可绑定会显示&#8217;-&lsquo;。</p>
+
+<!-- more -->
+
+
+<h3>1.2 查看虚拟机可使用的逻辑CPU核</h3>
+
+<pre><code>virsh emulatorpin [vm_name]
+</code></pre>
+
+<p><img src="http://7vzrth.com1.z0.glb.clouddn.com/virsh_emulatorpin_2.png" alt="" /></p>
+
+<p>如图同样可以看到0~7核均可以设置绑定</p>
+
+<h2>2. VCPU在线绑定的方法</h2>
+
+<h3>2.1 让VCPU只在部分物理核上调度</h3>
+
+<pre><code>virsh emulatorpin [vm_name] [num1-num2] --live
+</code></pre>
+
+<p><img src="http://7vzrth.com1.z0.glb.clouddn.com/virsh_emulatorpin.png" alt="" /></p>
+
+<p>此时，dumpxml，会在XML中显示出当前VCPU的绑定关系：</p>
+
+<pre><code>  ...
+  &lt;vcpu placement='static'&gt;2&lt;/vcpu&gt;
+    &lt;cputune&gt;
+      &lt;emulatorpin cpuset='6-7'/&gt;
+    &lt;/cputune&gt;
+  ...
+</code></pre>
+
+<h3>2.2 VCPU与物理核一对一绑定</h3>
+
+<p>通常的应用场景下，需要VCPU与物理核一对一绑定，使其它的VCPU不能争抢当前VCPU资源，实现资源配置的需求。</p>
+
+<pre><code>virsh vcpupin [vm_name] [VCPU_NUM] [CPU_NUM]
+</code></pre>
+
+<p><img src="http://7vzrth.com1.z0.glb.clouddn.com/virsh_vcpuinfo.png" alt="" /></p>
+
+<p>XML文件中会有如下变更：</p>
+
+<pre><code>  ...
+  &lt;vcpu placement='static'&gt;2&lt;/vcpu&gt;
+    &lt;cputune&gt;
+      &lt;vcpupin vcpu='0' cpuset='7'/&gt;
+      &lt;vcpupin vcpu='1' cpuset='6'/&gt;
+      &lt;emulatorpin cpuset='6-7'/&gt;
+    &lt;/cputune&gt;
+  ...
+</code></pre>
+
+<p>执行virsh reboot使虚拟机重启，绑定关系依然存在。</p>
+
+<h2>3. CPU绑定的原理</h2>
+
+<p>上述的CPU绑定方法，是libvirt通过cgroup实现的，有关cgroup的介绍可以通过<a href="http://coolshell.cn/articles/17049.html">Docker基础技术：Linux CGroup</a>了解基本概念。</p>
+
+<h2>4. CPU绑定的应用场景</h2>
+
+<p>在虚拟机出现计算压力较大时，就可以考虑进行CPU的绑定。</p>
+
+<p>例如，宿主机上运行着2台VM，VM1，VM2。VM1需要长时间跑一些压缩算法，CPU压力较大，VM2则做一些文件处理，主要瓶颈在I/O。这时，观察宿主机的物理CPU核的使用情况，发现CPU0 ~ CPU3的使用率在20%左右，而CPU4 ~ CPU7的使用率在80%左右，就可以考虑将VM1的VCPU绑定到CPU0 ~ CPU3，而将VM2的VCPU绑定到CPU4 ~ CPU7，这样可以使得需要大运算量的VM能够使用更多的计算资源，实现整体性能的提升。</p>
+
+<h2>5. 版权声明</h2>
+
+<p>本文内容的绝大部分节选自<a href="http://item.jd.com/11762844.html">《深度实践KVM》</a>的第三章，如有侵犯原作者权益，请联系本Blog.</p>
+
+<h2>6. References</h2>
+
+<p>[1] <a href="http://coolshell.cn/articles/17049.html">Docker基础技术：Linux CGroup</a></p>
+
+<p>[2] <a href="http://item.jd.com/11762844.html">深度实践KVM：核心技术、管理运维、性能优化与项目实施</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ceph RBD QoS]]></title>
+    <link href="http://hwguo.github.io/blog/2015/09/23/ceph-rbd-qos/"/>
+    <updated>2015-09-23T20:08:35+08:00</updated>
+    <id>http://hwguo.github.io/blog/2015/09/23/ceph-rbd-qos</id>
+    <content type="html"><![CDATA[<h2>背景</h2>
+
+<p>当前项目的私有云环境中，采用Ceph作为统一的后端存储。由于业务的种类繁多，经常会有部分虚机在某个时间段将宿主网卡吃满的情况。比如用户在VM内做大文件的拷贝，或者环境更新等。所以有必要对VM的I/O进行一定的资源限制，防止单宿主上VM间的网络I/O争抢。</p>
+
+<h2>Ceph RBD QoS</h2>
+
+<p>Qemu与KVM均提供对网络资源的限制支持，使用libvirt封装的接口可以更方便的实现对rbd设备的资源限制。
+libvirt提供如下选项：</p>
+
+<ul>
+<li>total_bytes_sec: 混合模式下的带宽限制</li>
+<li>read_bytes_sec: 顺序读带宽</li>
+<li>write_bytes_sec: 顺序写带宽</li>
+<li>total_iops_sec: 混合模式下的IOPS限制</li>
+<li>read_iops_sec: 随机读IOPS</li>
+<li>write_iops_sec: 随机写IOPS</li>
+</ul>
+
+
+<p>使用方法很简单：</p>
+
+<pre><code>
+    &lt;disk type='network' device='disk'&gt;
+      &lt;driver name='qemu' type='raw' cache='writethrough'/&gt;
+      ...
+      &lt;source protocol='rbd' name='[pool_name]/[image_name]'&gt;
+      ...
+      &lt;/source&gt;
+      &lt;iotune&gt;
+        &lt;read_iops_sec&gt;20&lt;/read_iops_sec&gt;
+        &lt;write_iops_sec&gt;10&lt;/write_iops_sec&gt;
+      &lt;/iotune&gt;
+
+    ...
+</code></pre>
+
+<p>在XML文件中添加&lt;iotune>标签，并设置相应的限制值即可</p>
+
+<!--more-->
+
+
+<h2>Test</h2>
+
+<p>针对上述例子，在VM内部使用FIO测试对IOPS的限制</p>
+
+<h4>随机读</h4>
+
+<p><strong>> fio -filename=/dev/vdc1 -direct=1 -iodepth 1 -thread -rw=randread -ioengine=psync -bs=4k -size=200M -numjobs=30 -runtime=10 -group_reporting -name=randread_test </strong></p>
+
+<p><img src="http://7vzrth.com1.z0.glb.clouddn.com/fio_randread_test.png" alt="随机读IOPS" /></p>
+
+<h4>随机写</h4>
+
+<p><strong>> fio -filename=/dev/vdc1 -direct=1 -iodepth 1 -thread -rw=randwrite -ioengine=psync -bs=4k -size=200M -numjobs=30 -runtime=10 -group_reporting -name=randwrite_test </strong></p>
+
+<p><img src="http://7vzrth.com1.z0.glb.clouddn.com/fio_randwrite_test.png" alt="随机写IOPS" /></p>
+
+<p>从测试可以看出，libvirt的接口可以很好地提供对RBD资源的限制</p>
+
+<h2>References</h2>
+
+<p>[1] <a href="http://ceph.com/planet/openstack-ceph-rbd-and-qos/">OpenStack, Ceph RBD and QoS</a></p>
+
+<p>[2] <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html">Amazon EBS Volume Types</a></p>
+
+<p>[3] <a href="http://blog.itpub.net/26855487/viewspace-754346/">linux 使用FIO测试磁盘iops</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Os Variants List of Virt-install]]></title>
+    <link href="http://hwguo.github.io/blog/2015/09/22/os-variants-list-of-virt-install/"/>
+    <updated>2015-09-22T00:36:44+08:00</updated>
+    <id>http://hwguo.github.io/blog/2015/09/22/os-variants-list-of-virt-install</id>
+    <content type="html"><![CDATA[<pre><code>root@cld-osd5-20:/home/henry# virt-install --os-variant list
+win2k8               : Microsoft Windows Server 2008 (or later)
+win2k3               : Microsoft Windows Server 2003
+win7                 : Microsoft Windows 7 (or later)
+vista                : Microsoft Windows Vista
+winxp64              : Microsoft Windows XP (x86_64)
+winxp                : Microsoft Windows XP
+win2k                : Microsoft Windows 2000
+openbsd4             : OpenBSD 4.x (or later)
+freebsd9             : FreeBSD 9.x
+freebsd8             : FreeBSD 8.x
+freebsd7             : FreeBSD 7.x
+freebsd6             : FreeBSD 6.x
+freebsd10            : FreeBSD 10.x (or later)
+solaris9             : Sun Solaris 9
+solaris11            : Sun Solaris 11 (or later)
+solaris10            : Sun Solaris 10
+opensolaris          : Sun OpenSolaris (or later)
+netware6             : Novell Netware 6 (or later)
+netware5             : Novell Netware 5
+netware4             : Novell Netware 4
+msdos                : MS-DOS
+generic              : Generic
+altlinux             : ALT Linux (or later)
+debianwheezy         : Debian Wheezy (or later)
+debiansqueeze        : Debian Squeeze
+debianlenny          : Debian Lenny
+debianetch           : Debian Etch
+fedora20             : Fedora 20 (or later)
+fedora19             : Fedora 19
+fedora18             : Fedora 18
+fedora17             : Fedora 17
+fedora16             : Fedora 16
+fedora15             : Fedora 15
+fedora14             : Fedora 14
+fedora13             : Fedora 13
+fedora12             : Fedora 12
+fedora11             : Fedora 11
+fedora10             : Fedora 10
+fedora9              : Fedora 9
+fedora8              : Fedora 8
+fedora7              : Fedora 7
+fedora6              : Fedora Core 6
+fedora5              : Fedora Core 5
+mes5.1               : Mandriva Enterprise Server 5.1 (or later)
+mes5                 : Mandriva Enterprise Server 5.0
+mandriva2010         : Mandriva Linux 2010 (or later)
+mandriva2009         : Mandriva Linux 2009 and earlier
+mageia1              : Mageia 1 (or later)
+rhel7                : Red Hat Enterprise Linux 7 (or later)
+rhel6                : Red Hat Enterprise Linux 6
+rhel5.4              : Red Hat Enterprise Linux 5.4 or later
+rhel5                : Red Hat Enterprise Linux 5
+rhel4                : Red Hat Enterprise Linux 4
+rhel3                : Red Hat Enterprise Linux 3
+rhel2.1              : Red Hat Enterprise Linux 2.1
+sles11               : Suse Linux Enterprise Server 11 (or later)
+sles10               : Suse Linux Enterprise Server
+opensuse12           : openSuse 12 (or later)
+opensuse11           : openSuse 11
+ubuntusaucy          : Ubuntu 13.10 (Saucy Salamander) (or later)
+ubunturaring         : Ubuntu 13.04 (Raring Ringtail)
+ubuntuquantal        : Ubuntu 12.10 (Quantal Quetzal)
+ubuntuprecise        : Ubuntu 12.04 LTS (Precise Pangolin)
+ubuntuoneiric        : Ubuntu 11.10 (Oneiric Ocelot)
+ubuntunatty          : Ubuntu 11.04 (Natty Narwhal)
+ubuntumaverick       : Ubuntu 10.10 (Maverick Meerkat)
+ubuntulucid          : Ubuntu 10.04 LTS (Lucid Lynx)
+ubuntukarmic         : Ubuntu 9.10 (Karmic Koala)
+ubuntujaunty         : Ubuntu 9.04 (Jaunty Jackalope)
+ubuntuintrepid       : Ubuntu 8.10 (Intrepid Ibex)
+ubuntuhardy          : Ubuntu 8.04 LTS (Hardy Heron)
+mbs1                 : Mandriva Business Server 1 (or later)
+virtio26             : Generic 2.6.25 or later kernel with virtio
+generic26            : Generic 2.6.x kernel
+generic24            : Generic 2.4.x kernel
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

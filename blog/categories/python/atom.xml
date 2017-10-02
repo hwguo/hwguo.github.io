@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Python | 亨利的博客]]></title>
+  <link href="http://hwguo.github.io/blog/categories/python/atom.xml" rel="self"/>
+  <link href="http://hwguo.github.io/"/>
+  <updated>2017-10-03T00:21:54+08:00</updated>
+  <id>http://hwguo.github.io/</id>
+  <author>
+    <name><![CDATA[Henry]]></name>
+    <email><![CDATA[hwguo1988@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Python包管理利器 —— Pip]]></title>
+    <link href="http://hwguo.github.io/blog/2015/11/04/pip/"/>
+    <updated>2015-11-04T22:39:15+08:00</updated>
+    <id>http://hwguo.github.io/blog/2015/11/04/pip</id>
+    <content type="html"><![CDATA[<h3>使用get-pip安装</h3>
+
+<pre><code>&gt; curl -O https://bootstrap.pypa.io/get-pip.py
+&gt; python get-pip.py
+</code></pre>
+
+<h3>使用源安装</h3>
+
+<pre><code>&gt; sudo apt-get install python-pip
+&gt; 
+or:
+&gt; sudo yum install python-pip
+</code></pre>
+
+<h3>使用</h3>
+
+<h4>| 从PyPI安装软件包</h4>
+
+<pre><code>&gt; pip install [package-name]
+</code></pre>
+
+<h4>| 查看软件包信息</h4>
+
+<pre><code>&gt; pip show [package-name]
+</code></pre>
+
+<h4>| 查看哪些软件包已经有更新版本</h4>
+
+<pre><code>&gt; pip list --outdated
+</code></pre>
+
+<h4>| 升级软件包</h4>
+
+<pre><code>&gt; pip install [—U | --upgrade] [package-name]
+</code></pre>
+
+<h4>| 卸载软件包</h4>
+
+<pre><code>&gt; pip uninstall [package-name]
+</code></pre>
+
+<!-- more -->
+
+
+<h3>高级用法</h3>
+
+<h4>| 查询软件包</h4>
+
+<pre><code>&gt; pip search [package-name]
+</code></pre>
+
+<h4>| 列表全部已安装软件包</h4>
+
+<pre><code>&gt; pip list
+</code></pre>
+
+<h4>| <em>安装指定版本的软件包</em></h4>
+
+<pre><code>&gt; pip install [package-name]==0.7.14     # 指定特定安装版本
+&gt; 
+&gt; pip install [package-name]&gt;=0.7.14     # 指定最小安装版本
+</code></pre>
+
+<h4>| <em>根据依赖文件安装软件包</em></h4>
+
+<pre><code>&gt; pip freeze &gt; requirements.txt
+&gt; 
+&gt; pip install -r requirements.txt
+</code></pre>
+
+<h3>References</h3>
+
+<p><a href="http://www.cnblogs.com/skynet/p/4135477.html">【1】优雅的使用Python之软件管理</a></p>
+
+<div align=center>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=480 height=120 src="http://music.163.com/outchain/player?type=2&id=22688513&auto=1&height=66"></iframe>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

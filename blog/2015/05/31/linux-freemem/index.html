@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Linux下查看系统空闲内存的方法 - 亨利的博客</title>
+  <meta name="author" content="Henry">
+
+  <meta name="description" content="Check Linux free memory in User and Kernel space"> 
+  <meta name="keywords" content="free memory, kernel space">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://hwguo.github.io/blog/2015/05/31/linux-freemem/">
+  <link href="/favicon.png" type="image/png" rel="icon">
+  <link href="/atom.xml" rel="alternate" title="亨利的博客" type="application/atom+xml">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://hwguo.github.io/blog/2015/05/31/linux-freemem/">
+  <meta property="og:title" content="Linux下查看系统空闲内存的方法 - 亨利的博客">
+  <meta property="og:description" content="Check Linux free memory in User and Kernel space">
+
+  <script src="/javascripts/libs/jquery/jquery-2.1.3.min.js"></script>
+
+<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+  
+  <link href="/stylesheets/screen.css" media="screen, projection, print" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+  <body   >
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div id="wrap">
+      
+        <header role="banner">
+          <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">亨利的博客</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li ><a href="#">Projects</a></li>
+<li ><a href="/blog/archives">Archives</a></li>
+<li ><a href="#">About Me</a></li>
+
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a class="subscribe-rss" href="/atom.xml" title="subscribe via RSS">
+                        <span class="visible-xs">RSS</span>
+                        <img class="hidden-xs" src="/images/rss.png" alt="RSS">
+                    </a>
+                </li>
+                
+            </ul>
+            
+                <form class="navbar-form navbar-right" action="https://www.google.com/search" method="GET">
+                    <input type="hidden" name="sitesearch" value="hwguo.github.io">
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="q" placeholder="Search">
+                    </div>
+                </form>
+            
+        </div>
+    </div>
+</nav>
+
+
+        </header>
+      
+      <div id="main" role="main" class="container">
+        <div id="content">
+          <div class="row">
+  <div class="page-content" itemscope itemtype="http://schema.org/Blog">
+    <meta itemprop="name" content="亨利的博客" />
+    <meta itemprop="description" content="人活着，要清楚自己想要什么，更要勇敢地去追寻" />
+    <meta itemprop="url" content="http://hwguo.github.io" />
+    <article class="hentry" role="article" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+      
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-31T23:00:42+08:00"  data-updated="true" itemprop="datePublished dateCreated">Sun 31 May 2015, 11:00 PM</time>
+        
+           | <a href="#disqus_thread" itemprop="discussionUrl"
+             data-disqus-identifier="http://hwguo.github.io">Comments</a>
+        
+      </p>
+    
+    
+    <h1 class="entry-title" itemprop="name headline">
+        Linux下查看系统空闲内存的方法
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix" itemprop="articleBody description"><h2>1. free</h2>
+
+<p>linux系统中，查看当前内存的使用情况，简便的方法是free命令，命令行中free -m，列出系统当前的可用内存、cache/buffer、swap相关信息。</p>
+
+<p>free工具是procps项目提供的标准proc文件系统分析工具，通过读取分析/proc/meminfo，实时的反应当前系统的内存使用情况。项目主页：<a href="http://procps.sourceforge.net">procps.sourceforge.net</a></p>
+
+<p><img src="http://pic.yupoo.com/taingg/EH1ELm9n/vG6TW.png" alt="free" /></p>
+
+<!--more-->
+
+
+<h2>2. 用户态程序中，利用sysinfo系统调用</h2>
+
+<p>如果想在程序中实时查看系统当前可用内存情况，可以利用的方法也是多样的。</p>
+
+<p>1.如果是在用户态程序中查看，可以通过“system”系统调用，执行free命令，或是读取/proc/meminfo文件，再做文本处理。</p>
+
+<p>2.当然1的方法不够直观，/proc/meminfo中的信息是系统利用proc文件系统的处理函数获得的，内核代码fs/proc/meminfo.c中实现的。
+粗读代码可以发现struct sysinfo这个结构（include/linux/kernel.h中定义）</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>struct sysinfo {
+</span><span class='line'>         long uptime;                    /* Seconds since boot */
+</span><span class='line'>         unsigned long loads[3];         /* 1, 5, and 15 minute load averages */
+</span><span class='line'>         unsigned long totalram;         /* Total usable main memory size */
+</span><span class='line'>         unsigned long freeram;          /* Available memory size */
+</span><span class='line'>         unsigned long sharedram;        /* Amount of shared memory */
+</span><span class='line'>         unsigned long bufferram;        /* Memory used by buffers */
+</span><span class='line'>         unsigned long totalswap;        /* Total swap space size */
+</span><span class='line'>         unsigned long freeswap;         /* swap space still available */
+</span><span class='line'>         unsigned short procs;           /* Number of current processes */
+</span><span class='line'>         unsigned short pad;             /* explicit padding for m68k */
+</span><span class='line'>         unsigned long totalhigh;        /* Total high memory size */
+</span><span class='line'>         unsigned long freehigh;         /* Available high memory size */
+</span><span class='line'>         unsigned int mem_unit;          /* Memory unit size in bytes */
+</span><span class='line'>         char _f[20-2*sizeof(long)-sizeof(int)]; /* Padding: libc5 uses this.. */
+</span><span class='line'>};</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看到该结构中定义了系统的内存使用情况。源码中查询sysinfo，发现有sysinfo这个系统调用，用于查询和获得系统信息。于是在用户态程序中可以采用如下方法：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;stdio.h&gt;
+</span><span class='line'>#include &lt;unistd.h&gt;
+</span><span class='line'>#include &lt;linux/kernel.h&gt;
+</span><span class='line'>
+</span><span class='line'>int main()
+</span><span class='line'>{
+</span><span class='line'>    struct sysinfo sys_i;
+</span><span class='line'>    int err = sysinfo(&sys_i);
+</span><span class='line'>    printf("\n\nerror code is: %d\n", err);
+</span><span class='line'>
+</span><span class='line'>    printf( "free mem:\t%ld\n"                                                                               
+</span><span class='line'>            "total mem:\t%ld\n"
+</span><span class='line'>            "buffer mem:\t%ld\n", 
+</span><span class='line'>            sys_i.freeram, sys_i.totalram, sys_i.bufferram 
+</span><span class='line'>          );  
+</span><span class='line'>
+</span><span class='line'>    return 0;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>编译并执行：</p>
+
+<p>~$ <strong><em>gcc -o play test.c</em></strong></p>
+
+<p>对比执行结果与free的结果：
+<img src="http://pic.yupoo.com/taingg/EH1SEQsN/xF8zK.png" alt="sysinfo与free对比" /></p>
+
+<h2>3. 内核态程序中，利用do_sysinfo中的si_meminfo实现</h2>
+
+<p>在内核态中实现，我没有找到很好的方法。通过读代码，找到执行sysinfo系统调用的回调函数sys_sysinfo</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SYSCALL_DEFINE1(sysinfo, struct sysinfo __user *, info)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>进一步宏展开SYSCALL_DEFINE1得到验证:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SYSCALL_DEFINE1(sysinfo, struct sysinfo __user *, info)
+</span><span class='line'>{
+</span><span class='line'>         struct sysinfo val;
+</span><span class='line'> 
+</span><span class='line'>         do_sysinfo(&val);
+</span><span class='line'> 
+</span><span class='line'>         if (copy_to_user(info, &val, sizeof(struct sysinfo)))
+</span><span class='line'>                 return -EFAULT;
+</span><span class='line'> 
+</span><span class='line'>         return 0;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>核心实现函数为do_sysinfo函数，该函数执行内容过多，为免除不必要操作，只利用与freeram相关的函数操作，即：si_meminfo函数。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void si_meminfo(struct sysinfo *val)
+</span><span class='line'>{
+</span><span class='line'>         val-&gt;totalram = totalram_pages;
+</span><span class='line'>         val-&gt;sharedram = 0;
+</span><span class='line'>         val-&gt;freeram = global_page_state(NR_FREE_PAGES);
+</span><span class='line'>         val-&gt;bufferram = nr_blockdev_pages();
+</span><span class='line'>         val-&gt;totalhigh = totalhigh_pages;
+</span><span class='line'>         val-&gt;freehigh = nr_free_highpages();
+</span><span class='line'>         val-&gt;mem_unit = PAGE_SIZE;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看到，sysinfo中的ram相关内容被赋值。写一个内核模块做测试:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;linux/init.h&gt;
+</span><span class='line'>#include &lt;linux/module.h&gt;
+</span><span class='line'>#include &lt;linux/kernel.h&gt;
+</span><span class='line'>#include &lt;linux/mm.h&gt;
+</span><span class='line'>#include &lt;asm/page.h&gt;
+</span><span class='line'>
+</span><span class='line'>MODULE_LICENSE("GPL");
+</span><span class='line'>MODULE_AUTHOR("GuoHongwei");
+</span><span class='line'>
+</span><span class='line'>static int sysinfo_init()
+</span><span class='line'>{
+</span><span class='line'>    struct sysinfo sys;
+</span><span class='line'>    // int err = do_sysinfo(&sys);
+</span><span class='line'>
+</span><span class='line'>    si_meminfo(&sys);
+</span><span class='line'>
+</span><span class='line'>    // printk("\n\nerror code is: %ld", err);
+</span><span class='line'>    printk("free mem is: %ld\n", (sys.freeram &lt;&lt; (PAGE_SHIFT - 10)));
+</span><span class='line'>
+</span><span class='line'>    return 0;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>static void sysinfo_exit()
+</span><span class='line'>{
+</span><span class='line'>    printk("exit module sysinfo_test\n");
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>module_init(sysinfo_init);
+</span><span class='line'>module_exit(sysinfo_exit);
+</span><span class='line'>
+</span><span class='line'>Makefile：
+</span><span class='line'>obj-m := sysinfo_test.o
+</span><span class='line'>KERNELDIR = /lib/modules/$(shell uname -r)/build                                                             
+</span><span class='line'>PWD := $(shell pwd)
+</span><span class='line'>
+</span><span class='line'>default:
+</span><span class='line'>        make -C $(KERNELDIR) M=$(PWD) modules
+</span><span class='line'>
+</span><span class='line'>clean:
+</span><span class='line'>        make -C $(KERNELDIR) M=$(PWD) clean</span></code></pre></td></tr></table></div></figure>
+
+
+<p>执行结果如下：</p>
+
+<p><img src="http://pic.yupoo.com/taingg/EH1UAbNv/zQZ0M.png" alt="si_meminfo" /></p>
+</div>
+
+
+      <footer class="post-footer">
+        <p class="meta text-muted">
+          
+  
+
+
+
+<figure class="author-image">
+    <span class="img" href="/about" style="background-image: url(/images/avatar.jpg)"><span class="hidden">Picture</span></span>
+</figure>
+
+<section class="author">
+    <h4><span class="byline author vcard" itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="fn" itemprop="name">Henry</span></span></h4>
+
+    <div class="author-meta">
+        <span class="author-link icon-link"><i class="fa fa-link" aria-hidden="true"></i> <a href="http://hwguo.github.io">http://hwguo.github.io</a></span>
+    </div>
+</section>
+
+<hr>
+
+<section class="share">
+    
+    <h4>Share this post</h4>
+    
+    <a class="fa fa-twitter" href="https://twitter.com/intent/tweet?url=http://hwguo.github.io/blog/2015/05/31/linux-freemem/;" 
+        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <span class="hidden">Twitter</span>
+    </a>
+    <a class="fa fa-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://hwguo.github.io/blog/2015/05/31/linux-freemem/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+        <span class="hidden">Facebook</span>
+    </a>
+    <a class="fa fa-google-plus" href="https://plus.google.com/share?url=http://hwguo.github.io/blog/2015/05/31/linux-freemem/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+        <span class="hidden">Google+</span>
+    </a>
+    
+</section>
+
+
+
+
+<!--
+<footer class="post-footer">
+
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="https://twitter.com/intent/tweet?text=Instant%20Movie%20Streamer%20v3%20Release&amp;url=http://iyask.me/instant-movie-streamer-v3-release/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://iyask.me/instant-movie-streamer-v3-release/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=http://iyask.me/instant-movie-streamer-v3-release/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+
+        </footer>
+
+
+&#8211;>
+          
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-31T23:00:42+08:00"  data-updated="true" itemprop="datePublished dateCreated">Sun 31 May 2015, 11:00 PM</time>
+          <br>
+
+<span class="glyphicon glyphicon-tags"></span>&nbsp;
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/tricky/'>tricky</a>
+  
+</span>
+
+
+        </p>
+        
+          <div class="pager">
+            
+            
+              
+              <a href="/blog/2015/09/22/os-variants-list-of-virt-install/" class="col-xs-12 col-md-4 btn btn-default pull-right" title="Next Post: Os Variants list of virt-install">
+                <div class="text-muted">
+                  <small>Next Post</small>
+                </div>
+                <div class="pager-title">
+                  <h4>Os Variants list of virt-install</h4>
+                </div>
+              </a>
+              
+            
+            
+          </div>
+        
+      </footer>
+    </article>
+    
+      <section>
+        <h2>Comments</h2>
+        <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+      </section>
+    
+  </div>
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2017 - Henry<br>
+  <small>
+      <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
+      <span class="credit">customized with <a href="https://github.com/bhrigu123/abacus">abacus theme</a></span>.
+  </small>
+</p>
+
+</div>
+</footer>
+    
+
+<script type="text/javascript">
+      var disqus_shortname = 'Henry';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://hwguo.github.io/blog/2015/05/31/linux-freemem/';
+        var disqus_url = 'http://hwguo.github.io/blog/2015/05/31/linux-freemem/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+
+<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr.js"></script>
+
+
+  </body>
+</html>
