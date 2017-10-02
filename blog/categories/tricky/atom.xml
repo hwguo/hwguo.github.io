@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Tricky | 亨利的博客]]></title>
-  <link href="http://hwguo.github.io/blog/categories/tricky/atom.xml" rel="self"/>
-  <link href="http://hwguo.github.io/"/>
-  <updated>2017-10-03T00:21:54+08:00</updated>
-  <id>http://hwguo.github.io/</id>
+  <link href="http:///blog/categories/tricky/atom.xml" rel="self"/>
+  <link href="http:///"/>
+  <updated>2017-10-03T00:30:57+08:00</updated>
+  <id>http:///</id>
   <author>
     <name><![CDATA[Henry]]></name>
     <email><![CDATA[hwguo1988@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Linux下查看系统空闲内存的方法]]></title>
-    <link href="http://hwguo.github.io/blog/2015/05/31/linux-freemem/"/>
+    <link href="http:///blog/2015/05/31/linux-freemem/"/>
     <updated>2015-05-31T23:00:42+08:00</updated>
-    <id>http://hwguo.github.io/blog/2015/05/31/linux-freemem</id>
+    <id>http:///blog/2015/05/31/linux-freemem</id>
     <content type="html"><![CDATA[<h2>1. free</h2>
 
 <p>linux系统中，查看当前内存的使用情况，简便的方法是free命令，命令行中free -m，列出系统当前的可用内存、cache/buffer、swap相关信息。</p>

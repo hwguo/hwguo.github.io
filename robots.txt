@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://hwguo.github.io/sitemap.xml 
+Sitemap: http:///sitemap.xml 

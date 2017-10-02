@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Kvm | 亨利的博客]]></title>
-  <link href="http://hwguo.github.io/blog/categories/kvm/atom.xml" rel="self"/>
-  <link href="http://hwguo.github.io/"/>
-  <updated>2017-10-03T00:21:54+08:00</updated>
-  <id>http://hwguo.github.io/</id>
+  <link href="http:///blog/categories/kvm/atom.xml" rel="self"/>
+  <link href="http:///"/>
+  <updated>2017-10-03T00:30:57+08:00</updated>
+  <id>http:///</id>
   <author>
     <name><![CDATA[Henry]]></name>
     <email><![CDATA[hwguo1988@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[虚拟机CPU绑定设置]]></title>
-    <link href="http://hwguo.github.io/blog/2015/10/05/vcpu-binding/"/>
+    <link href="http:///blog/2015/10/05/vcpu-binding/"/>
     <updated>2015-10-05T17:32:46+08:00</updated>
-    <id>http://hwguo.github.io/blog/2015/10/05/vcpu-binding</id>
+    <id>http:///blog/2015/10/05/vcpu-binding</id>
     <content type="html"><![CDATA[<h2>1. VCPU信息查看</h2>
 
 <h3>1.1 VCPU与CPU对应关系</h3>
@@ -110,9 +110,9 @@ CPU Affinity yyyyyyyy 代表物理核0~7均可以设置绑定，如果不可绑�
   
   <entry>
     <title type="html"><![CDATA[Ceph RBD QoS]]></title>
-    <link href="http://hwguo.github.io/blog/2015/09/23/ceph-rbd-qos/"/>
+    <link href="http:///blog/2015/09/23/ceph-rbd-qos/"/>
     <updated>2015-09-23T20:08:35+08:00</updated>
-    <id>http://hwguo.github.io/blog/2015/09/23/ceph-rbd-qos</id>
+    <id>http:///blog/2015/09/23/ceph-rbd-qos</id>
     <content type="html"><![CDATA[<h2>背景</h2>
 
 <p>当前项目的私有云环境中，采用Ceph作为统一的后端存储。由于业务的种类繁多，经常会有部分虚机在某个时间段将宿主网卡吃满的情况。比如用户在VM内做大文件的拷贝，或者环境更新等。所以有必要对VM的I/O进行一定的资源限制，防止单宿主上VM间的网络I/O争抢。</p>
@@ -184,9 +184,9 @@ libvirt提供如下选项：</p>
   
   <entry>
     <title type="html"><![CDATA[Os Variants List of Virt-install]]></title>
-    <link href="http://hwguo.github.io/blog/2015/09/22/os-variants-list-of-virt-install/"/>
+    <link href="http:///blog/2015/09/22/os-variants-list-of-virt-install/"/>
     <updated>2015-09-22T00:36:44+08:00</updated>
-    <id>http://hwguo.github.io/blog/2015/09/22/os-variants-list-of-virt-install</id>
+    <id>http:///blog/2015/09/22/os-variants-list-of-virt-install</id>
     <content type="html"><![CDATA[<pre><code>root@cld-osd5-20:/home/henry# virt-install --os-variant list
 win2k8               : Microsoft Windows Server 2008 (or later)
 win2k3               : Microsoft Windows Server 2003
