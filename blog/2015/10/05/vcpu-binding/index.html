@@ -1,11 +1,15 @@
+
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
   <title>虚拟机CPU绑定设置 - 亨利的博客</title>
   <meta name="author" content="Henry">
 
-  <meta name="description" content="vcpu bind tech"> 
+  
+  <meta name="description" content="vcpu bind tech">
   <meta name="keywords" content="vcpu, bind, pinning, kvm, qemu">
 
   <!-- http://t.co/dKP3o1e -->
@@ -14,91 +18,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http:///blog/2015/10/05/vcpu-binding/">
-  <link href="/favicon.png" type="image/png" rel="icon">
+  <link rel="canonical" href="http:///blog/2015/10/05/vcpu-binding">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="亨利的博客" type="application/atom+xml">
-
-  <!-- http://opengraphprotocol.org/ -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="http:///blog/2015/10/05/vcpu-binding/">
-  <meta property="og:title" content="虚拟机CPU绑定设置 - 亨利的博客">
-  <meta property="og:description" content="vcpu bind tech">
-
-  <script src="/javascripts/libs/jquery/jquery-2.1.3.min.js"></script>
-
-<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
-
-<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=Open+Sans:400,700&subset=latin" rel="stylesheet" type="text/css" />
+<link href='http://fonts.googleapis.com/css?family=Noto+Serif:400,700' rel='stylesheet' type='text/css'>
 
 
-  
-  <link href="/stylesheets/screen.css" media="screen, projection, print" rel="stylesheet" type="text/css">
 
   
 
 </head>
 
-  <body   >
-    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
-    <div id="wrap">
-      
-        <header role="banner">
-          <nav class="navbar navbar-default" role="navigation">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">亨利的博客</a>
-        </div>
+<body   >
+  <nav id="main-nav" role="navigation">
+<ul class="main-navigation">
+  <li><a href="/" class="nav-link">Blog</a></li>
+  <li><a href="/blog/archives" class="nav-link">Archives</a></li>
+  <li><a href="/atom.xml" class="nav-link">RSS</a></li>
+</ul>
 
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li ><a href="#">Projects</a></li>
-<li ><a href="/blog/archives">Archives</a></li>
-<li ><a href="#">About Me</a></li>
-
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a class="subscribe-rss" href="/atom.xml" title="subscribe via RSS">
-                        <span class="visible-xs">RSS</span>
-                        <img class="hidden-xs" src="/images/rss.png" alt="RSS">
-                    </a>
-                </li>
-                
-            </ul>
-            
-                <form class="navbar-form navbar-right" action="https://www.google.com/search" method="GET">
-                    <input type="hidden" name="sitesearch" value="http://">
-                    <div class="form-group">
-                        <input class="form-control" type="text" name="q" placeholder="Search">
-                    </div>
-                </form>
-            
-        </div>
-    </div>
 </nav>
-
-
-        </header>
-      
-      <div id="main" role="main" class="container">
-        <div id="content">
-          <div class="row">
-  <div class="page-content" itemscope itemtype="http://schema.org/Blog">
-    <meta itemprop="name" content="亨利的博客" />
-    <meta itemprop="description" content="人活着，要清楚自己想要什么，更要勇敢地去追寻" />
-    <meta itemprop="url" content="http://" />
-    <article class="hentry" role="article" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-      
-  <header class="page-header">
+  
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
     
-      <p class="meta text-muted text-uppercase">
+      <h1 class="entry-title">虚拟机CPU绑定设置</h1>
+    
+    
+      <p class="meta">
         
 
 
@@ -108,27 +66,20 @@
 
 
 
+  
 
 
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-10-05T17:32:46+08:00"  data-updated="true" itemprop="datePublished dateCreated">Mon  5 Oct 2015,  5:32 PM</time>
+<time datetime="2015-10-05T17:32:46+08:00" pubdate data-updated="true"></time>
         
-           | <a href="#disqus_thread" itemprop="discussionUrl"
+           | <a href="#disqus_thread"
              data-disqus-identifier="http://">Comments</a>
         
       </p>
     
-    
-    <h1 class="entry-title" itemprop="name headline">
-        虚拟机CPU绑定设置
-        
-    </h1>
-    
   </header>
 
 
-<div class="entry-content clearfix" itemprop="articleBody description"><h2>1. VCPU信息查看</h2>
+<div class="entry-content"><h2>1. VCPU信息查看</h2>
 
 <h3>1.1 VCPU与CPU对应关系</h3>
 
@@ -236,86 +187,28 @@ CPU Affinity yyyyyyyy 代表物理核0~7均可以设置绑定，如果不可绑�
 </div>
 
 
-      <footer class="post-footer">
-        <p class="meta text-muted">
-          
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Henry</span></span>
+
+      
+
+
+
+
+
+
+
+
   
 
 
+<time datetime="2015-10-05T17:32:46+08:00" pubdate data-updated="true"></time>
+      
 
-<figure class="author-image">
-    <span class="img" href="/about" style="background-image: url(/images/avatar.jpg)"><span class="hidden">Picture</span></span>
-</figure>
-
-<section class="author">
-    <h4><span class="byline author vcard" itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="fn" itemprop="name">Henry</span></span></h4>
-
-    <div class="author-meta">
-        <span class="author-link icon-link"><i class="fa fa-link" aria-hidden="true"></i> <a href="http://">http://</a></span>
-    </div>
-</section>
-
-<hr>
-
-<section class="share">
-    
-    <h4>Share this post</h4>
-    
-    <a class="fa fa-twitter" href="https://twitter.com/intent/tweet?url=http:///blog/2015/10/05/vcpu-binding/;" 
-        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-        <span class="hidden">Twitter</span>
-    </a>
-    <a class="fa fa-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http:///blog/2015/10/05/vcpu-binding/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-        <span class="hidden">Facebook</span>
-    </a>
-    <a class="fa fa-google-plus" href="https://plus.google.com/share?url=http:///blog/2015/10/05/vcpu-binding/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-        <span class="hidden">Google+</span>
-    </a>
-    
-</section>
-
-
-
-
-<!--
-<footer class="post-footer">
-
-
-            <section class="share">
-                <h4>Share this post</h4>
-                <a class="icon-twitter" href="https://twitter.com/intent/tweet?text=Instant%20Movie%20Streamer%20v3%20Release&amp;url=http://iyask.me/instant-movie-streamer-v3-release/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                    <span class="hidden">Twitter</span>
-                </a>
-                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://iyask.me/instant-movie-streamer-v3-release/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                    <span class="hidden">Facebook</span>
-                </a>
-                <a class="icon-google-plus" href="https://plus.google.com/share?url=http://iyask.me/instant-movie-streamer-v3-release/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-                    <span class="hidden">Google+</span>
-                </a>
-            </section>
-
-
-        </footer>
-
-
-&#8211;>
-          
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-10-05T17:32:46+08:00"  data-updated="true" itemprop="datePublished dateCreated">Mon  5 Oct 2015,  5:32 PM</time>
-          <br>
-
-<span class="glyphicon glyphicon-tags"></span>&nbsp;
 <span class="categories">
   
     <a class='category' href='/blog/categories/kvm/'>kvm</a>
@@ -323,65 +216,106 @@ CPU Affinity yyyyyyyy 代表物理核0~7均可以设置绑定，如果不可绑�
 </span>
 
 
-        </p>
-        
-          <div class="pager">
-            
-            
-              
-                <a href="/blog/2015/09/26/happy-mid-autumn-day/" class="col-xs-12 col-md-4 btn btn-default" title="Previous Post: Happy Mid-Autumn Day"> 
-                  <div class="text-muted">
-                    <small>Previous Post</small>
-                  </div>
-                  <div class="pager-title">
-                    <h4>Happy Mid-Autumn Day</h4>
-                  </div>
-                </a>
-              
-            
-            
-            
-              
-              <a href="/blog/2015/11/04/pip/" class="col-xs-12 col-md-4 btn btn-default pull-right" title="Next Post: Python包管理利器 —— pip">
-                <div class="text-muted">
-                  <small>Next Post</small>
-                </div>
-                <div class="pager-title">
-                  <h4>Python包管理利器 —— pip</h4>
-                </div>
-              </a>
-              
-            
-            
-          </div>
-        
-      </footer>
-    </article>
+    </p>
     
-      <section>
-        <h2>Comments</h2>
-        <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</div>
-      </section>
-    
-  </div>
+      <div class="sharing">
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
 </div>
 
-        </div>
-      </div>
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/09/26/happy-mid-autumn-day/" title="Previous Post: Happy Mid-Autumn Day">&laquo; Happy Mid-Autumn Day</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/11/04/pip/" title="Next Post: Python包管理利器 —— pip">Python包管理利器 —— pip &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+    <iframe width="263" height="480" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=263&height=480&fansRow=1&ptype=1&speed=0&skin=10&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=1704957933&verifier=412002f2&dpc=1"></iframe>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/04/pip/">Python包管理利器 —— Pip</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/05/vcpu-binding/">虚拟机CPU绑定设置</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/26/happy-mid-autumn-day/">Happy Mid-Autumn Day</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/23/ceph-rbd-qos/">Ceph RBD QoS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/22/os-variants-list-of-virt-install/">Os Variants List of Virt-install</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/31/linux-freemem/">Linux下查看系统空闲内存的方法</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li class='category'><a href='/blog/categories/kvm/'>kvm (3)</a></li>
+<li class='category'><a href='/blog/categories/life/'>life (1)</a></li>
+<li class='category'><a href='/blog/categories/python/'>python (1)</a></li>
+<li class='category'><a href='/blog/categories/tricky/'>tricky (1)</a></li>
+</ul>
+</section>
+<section>
+    <h1>Links</h1>
+    <ul id="categories"><a href='http://coolshell.cn/' target='_blank'>CoolShell</a></ul>
+    <ul id="categories"><a href='http://www.chenshake.com/' target='_blank'>陈沙克日志</a></ul>
+    <ul id="categories"><a href='http://blog.aliyun.com/?spm=0.0.0.0.N6Mj64' target='_blank'>阿里云产品博客</a></ul>
+    <ul id="categories"><a href='https://log.qingcloud.com/' target='_blank'>青云志</a></ul>
+    <ul id="categories"><a href='http://smilejay.com/kvm_theory_practice/' target='_blank'>笑遍世界</a></ul>
+    <ul id="categories"><a href='http://vbird.dic.ksu.edu.tw/linux_basic/linux_basic.php' target='_blank'>鸟哥的Linux私房菜</a></ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
     </div>
-    <footer role="contentinfo"><div class="container">
-    <p class="text-muted credits">
-  Copyright &copy; 2017 - Henry<br>
-  <small>
-      <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
-      <span class="credit">customized with <a href="https://github.com/bhrigu123/abacus">abacus theme</a></span>.
-  </small>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - Henry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
-</div>
 </footer>
-    
+  
 
 <script type="text/javascript">
       var disqus_shortname = 'Henry';
@@ -415,9 +349,8 @@ CPU Affinity yyyyyyyy 代表物理核0~7均可以设置绑定，如果不可绑�
 
 
 
-<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="/javascripts/modernizr.js"></script>
 
 
-  </body>
+
+</body>
 </html>
